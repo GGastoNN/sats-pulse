@@ -5,22 +5,17 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.UUID
 
-class PaymentClient(
-    private val baseUrl: String = BuildConfig.API_BASE_URL
-) {
+class PaymentClient(private val baseUrl: String = BuildConfig.API_BASE_URL) {
     suspend fun createCheckout(sku: String, deviceId: String): CheckoutSession = withContext(Dispatchers.IO) {
-        val body = JSONObject()
-            .put("sku", sku)
-            .put("deviceId", deviceId)
-            .toString()
+        val body = JSONObject().put("sku", sku).put("deviceId", deviceId).toString()
         val json = request("POST", "/api/checkout", body)
         CheckoutSession(
             orderToken = json.getString("orderToken"),
             sku = json.getString("sku"),
             priceSats = json.getInt("priceSats"),
-            checkoutUrl = json.getString("checkoutUrl")
+            checkoutUrl = json.getString("checkoutUrl"),
+            provider = json.optString("provider", "lightning")
         )
     }
 
@@ -35,13 +30,14 @@ class PaymentClient(
 
     private fun request(method: String, path: String, body: String?): JSONObject {
         require(baseUrl.startsWith("https://") || baseUrl.startsWith("http://10.0.2.2")) {
-            "API_BASE_URL debe usar HTTPS en producción"
+            "API_BASE_URL must use HTTPS in production"
         }
         val conn = (URL(baseUrl.trimEnd('/') + path).openConnection() as HttpURLConnection).apply {
             requestMethod = method
             connectTimeout = 12_000
-            readTimeout = 15_000
+            readTimeout = 18_000
             setRequestProperty("Accept", "application/json")
+            setRequestProperty("User-Agent", "SatsPulse-Android/2")
             if (body != null) {
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
@@ -49,18 +45,13 @@ class PaymentClient(
             }
         }
         val code = conn.responseCode
-        val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
-            ?.bufferedReader()?.use { it.readText() }.orEmpty()
+        val text = (if (code in 200..299) conn.inputStream else conn.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
         if (code !in 200..299) {
             val message = runCatching { JSONObject(text).optString("error") }.getOrNull()
-            throw IllegalStateException(message?.ifBlank { null } ?: "Error HTTP $code")
+            throw IllegalStateException(message?.ifBlank { null } ?: "HTTP $code")
         }
         return JSONObject(text)
     }
 
     private fun encode(raw: String): String = java.net.URLEncoder.encode(raw, Charsets.UTF_8.name())
-
-    companion object {
-        fun installationId(): String = UUID.randomUUID().toString()
-    }
 }
