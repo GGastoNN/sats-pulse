@@ -1,0 +1,13 @@
+name = "sats-pulse-payments"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = true
+
+[vars]
+PAYMENT_MODE = "lightning_address"
+# Secrets are intentionally NOT stored here.
+# Set them with:
+#   npx wrangler secret put RECIPIENT_LIGHTNING_ADDRESS
+#   npx wrangler secret put ORDER_SIGNING_SECRET
+# Optional merchant mode:
+#   npx wrangler secret put SPEED_API_KEY
