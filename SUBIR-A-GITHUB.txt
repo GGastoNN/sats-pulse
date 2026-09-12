@@ -1,0 +1,25 @@
+SATS PULSE 2.0 — ILLU ENTERTAINMENT
+
+1) Subí TODO el contenido de este paquete al repositorio, reemplazando la versión anterior.
+
+2) GitHub > Settings > Secrets and variables > Actions > Secrets:
+   CLOUDFLARE_API_TOKEN
+   CLOUDFLARE_ACCOUNT_ID
+   RECIPIENT_LIGHTNING_ADDRESS
+   ORDER_SIGNING_SECRET
+   SPEED_API_KEY  (recomendado para verificación automática fiable)
+
+3) Ejecutá el workflow "Payment Worker".
+
+4) Copiá la URL HTTPS del Worker desplegado y guardala en:
+   Settings > Secrets and variables > Actions > Variables
+   SATFLOW_API_BASE_URL
+
+5) Ejecutá el workflow "Android APK".
+
+6) Descargá el artifact "SatsPulse-APK".
+
+IMPORTANTE:
+- No escribas el valor real de RECIPIENT_LIGHTNING_ADDRESS en ningún archivo público.
+- SPEED_API_KEY debe pertenecer a la misma cuenta Speed que debe recibir los pagos.
+- Si SPEED_API_KEY no está configurada, el Worker usa directamente la Lightning Address secreta y la verificación automática dependerá del proveedor LNURL.
