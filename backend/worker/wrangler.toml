@@ -4,10 +4,10 @@ compatibility_date = "2026-08-01"
 workers_dev = true
 
 [vars]
-PAYMENT_MODE = "lightning_address"
-# Secrets are intentionally NOT stored here.
-# Set them with:
-#   npx wrangler secret put RECIPIENT_LIGHTNING_ADDRESS
-#   npx wrangler secret put ORDER_SIGNING_SECRET
-# Optional merchant mode:
-#   npx wrangler secret put SPEED_API_KEY
+PAYMENT_MODE = "auto"
+# No recipient or API key is stored in this repository.
+# Required Worker secrets:
+#   RECIPIENT_LIGHTNING_ADDRESS
+#   ORDER_SIGNING_SECRET
+# Recommended for reliable automatic payment verification:
+#   SPEED_API_KEY
