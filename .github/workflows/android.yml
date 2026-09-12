@@ -20,8 +20,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate Android resource tree
+        run: |
+          if find app/src/main/res -type f ! \( -name "*.xml" -o -name "*.png" -o -name "*.webp" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.ttf" -o -name "*.otf" \) | grep -q .; then
+            echo "Unexpected file inside app/src/main/res"
+            find app/src/main/res -type f
+            exit 1
+          fi
+
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
